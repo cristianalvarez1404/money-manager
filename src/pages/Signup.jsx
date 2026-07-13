@@ -1,14 +1,63 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import Input from '../components/Input';
+import { validationEmail } from '../util/validation';
+import axiosConfig from '../util/axiosConfig';
+import { API_ENDPOINTS } from '../util/apiEndpoints';
+import toast from 'react-hot-toast';
+import { Loader, LoaderCircle } from 'lucide-react';
 
 const Signup = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    //basic validation
+    if(!fullName.trim()){
+      setError("Please enter your fullname");
+      setIsLoading(false);
+      return;
+    }
+
+    if(!validationEmail(email)){
+      setError("Please enter valid email address");
+      setIsLoading(false);
+      return;
+    }
+
+    if(!password.trim()){
+      setError("Please enter your password");
+      setIsLoading(false);
+      return;
+    }
+
+    setError("");
+    //signup api call
+    try {
+      const response = await axiosConfig.post(API_ENDPOINTS.REGISTER, {
+        fullName,
+        email,
+        password
+      });
+
+      if(response.status === 201){
+        toast.success("Profile created successfully.");
+        navigate("/login");
+      }
+    }catch(err){
+      console.error("Something went wrong",error);
+      setError(err.message);
+    }finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
     <div className='h-screen w-full relative flex items-center justify-center overflow-hidden'>
@@ -23,7 +72,7 @@ const Signup = () => {
             Start tracking your spendings by joing with us.
           </p>
 
-          <form className='space-y-4'>
+          <form onSubmit={handleSubmit} className='space-y-4'>
             <div className='flex justify-center mb-6'>
               {/* Profile image */}
             </div>
@@ -57,8 +106,15 @@ const Signup = () => {
                 {error}
               </p>
             )}
-            <button className='btn-primary w-full py-3 text-lg font-medium' type='submit'>
-              SIGN UP
+            <button disabled={isLoading}  className={`btn-primary w-full py-3 text-lg font-medium flex items-center justify-center gap-2 ${isLoading ? 'opacity-60' : ''}`} type='submit'>
+              {isLoading ? (
+                <>
+                  <LoaderCircle className='animate-spin w-5 h-5'/>
+                  SIGN UP...
+                </>
+              ) : (
+                  "SIGN UP"
+              )}
             </button>
             <p className='text-sm text-slate-800 text-center mt-6'>
               Already have an accout?
