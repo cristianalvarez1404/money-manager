@@ -49,9 +49,13 @@ const Login = () => {
       }
 
     }catch(err){
-      console.error("Something went wrong",error);
-      //toast.error("Something went wrong", error.message);
-      setError(err.message);
+      if(error.response && error.response.data.message){
+        setError(error.response.data.message);
+      } else {
+        console.error("Something went wrong",error);
+        //toast.error("Something went wrong", error.message);
+        setError(err.message);
+      }
     }finally {
       setIsLoading(false);
     }
