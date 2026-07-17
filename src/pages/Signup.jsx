@@ -7,6 +7,7 @@ import { API_ENDPOINTS } from '../util/apiEndpoints';
 import toast from 'react-hot-toast';
 import { Loader, LoaderCircle } from 'lucide-react';
 import ProfilePhotoSelector from '../components/ProfilePhotoSelector';
+import uploadProfileImage from '../util/uploadProfileImage';
 
 const Signup = () => {
   const [fullName, setFullName] = useState("");
@@ -20,7 +21,9 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let profileImageUrl = "";
     setIsLoading(true);
+
     //basic validation
     if(!fullName.trim()){
       setError("Please enter your fullname");
@@ -43,10 +46,18 @@ const Signup = () => {
     setError("");
     //signup api call
     try {
+
+      //upload image if present
+      if(profilePhoto){
+        const imageUrl = await uploadProfileImage(profilePhoto);
+        profileImageUrl = imageUrl || "";
+      }
+
       const response = await axiosConfig.post(API_ENDPOINTS.REGISTER, {
         fullName,
         email,
-        password
+        password,
+        profileImageUrl
       });
 
       if(response.status === 201){

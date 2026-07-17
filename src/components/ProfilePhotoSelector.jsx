@@ -15,12 +15,14 @@ const ProfilePhotoSelector = (email, setImage) => {
     }
   }
 
-  const handleRemoveImage = () => {
+  const handleRemoveImage = (e) => {
+    e.preventDefault();
     setImage(null);
     setPreviewUrl(null);
   }
 
-  const onChooseFile = () => {
+  const onChooseFile = (e) => {
+    e.preventDefault();
     inputRef.current?.click();
   }
 
@@ -38,7 +40,7 @@ const ProfilePhotoSelector = (email, setImage) => {
         <div className="w-20 h-20 flex items-center justify-center bg-purple-100 rounded-full relative">
           <User className='text-purple-500' size={35}/>
           <button onClick={onChooseFile} className='w-8 h-8 flex items-center justify-center bg-purple text-white rounded-full absolute -bottom-1 -right-1'>
-            <Upload size={15}/>
+            <Upload size={15} className='text-purple-500'/>
           </button>
         </div>
       ): (
