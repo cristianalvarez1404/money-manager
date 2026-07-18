@@ -2,9 +2,9 @@ import React from 'react'
 
 const Expense = () => {
   return (
-    <div>
-      Expense
-    </div>
+    <Dashboard>
+      This is expense page
+    </Dashboard>
   )
 }
 

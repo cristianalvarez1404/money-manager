@@ -1,10 +1,19 @@
 import React from 'react'
 import Menubar from './MenuBar'
+import Sidebar from './Sidebar';
 
-const Dashboard = () => {
+const Dashboard = ({children}) => {
   return (
     <div>
-        <Menubar/>   
+        <Menubar/>
+        
+        <div className='flex'>
+          <div className='max-[1080px]:hidden'>
+            <Sidebar/>
+          </div>
+
+          <div className='grow mx-5'>{children}</div>
+        </div>
     </div>
   )
 }

@@ -2,9 +2,9 @@ import React from 'react'
 
 const Filter = () => {
   return (
-    <div>
-      filter
-    </div>
+    <Dashboard>
+      This is filter page
+    </Dashboard>
   )
 }
 
