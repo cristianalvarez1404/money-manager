@@ -1,8 +1,10 @@
 import React from "react";
 import Dashboard from "../components/Dashboard";
+import useUser from "../hooks/useUser";
 
 const Income = () => {
-  return <Dashboard>This is income page</Dashboard>;
+  useUser();
+  return <Dashboard activeMenu="Income">This is income page</Dashboard>;
 };
 
 export default Income;

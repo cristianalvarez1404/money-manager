@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import Dashboard from '../components/Dashboard'
 
 const Expense = () => {
+  useContext();
   return (
-    <Dashboard>
+    <Dashboard activeMenu="Expense">
       This is expense page
     </Dashboard>
   )

@@ -1,11 +1,11 @@
-import React, { useContext, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { AppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Menu, User, X } from 'lucide-react';
 import { assest } from '../assets/assets';
 import Sidebar from './Sidebar';
 
-const Menubar = () => {
+const Menubar = ({activaMenu}) => {
   const [openSideMenu,setOpenSideMenu] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
@@ -18,6 +18,22 @@ const Menubar = () => {
     setShowDropdown(false);
     navigate("/login");
   }
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if(dropdownRef.current && !dropdownRef.current.contains(e.target)){
+        setShowDropdown(false);
+      }
+    };
+
+    if(setShowDropdown){
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [showDropdown])
 
   return (
     <div className='flex items-center justify-between gap-5 bg-white border border-b border-gray-200/50 backdrop-blur-[2px] py-4 px-4 sm:px-7 sticky top-0 z-30'>
@@ -75,7 +91,7 @@ const Menubar = () => {
       {/* Mobile side menu */}
       {openSideMenu && (
         <div className='fixed left-0 right-0 bg-white border-b border-gray-200 lg:hidden z-20 top-[73px]'>
-          <Sidebar/>
+          <Sidebar activeMenu={activaMenu}/>
         </div>
       )}
 
