@@ -6,6 +6,8 @@ import CategoryList from '../components/CategoryList';
 import axiosConfig from '../util/axiosConfig';
 import { API_ENDPOINTS } from '../util/apiEndpoints';
 import toast from 'react-hot-toast';
+import Modal from '../components/Modal';
+import AddCategoryForm from '../components/AddCategoryForm';
 
 const Category = () => {
   useUser();
@@ -45,7 +47,7 @@ const Category = () => {
           {/* Add button to add category */}
           <div className='flex justify-between items-center mb-5'>
             <h2 className='text-2xl font-semibold'>All Cateogories</h2>
-            <button className='add-btn flex items-center gap-1'>
+            <button onClick={() => setOpenAddCategoryModel(true)} className='add-btn flex items-center gap-1'>
               <Plus size={15} />
               Add category
             </button>
@@ -55,6 +57,13 @@ const Category = () => {
           <CategoryList categories={categoryData}/>
 
           {/* Adding category modal */}
+          <Modal 
+            isOpen={openAddCategoryModal} 
+            onClose={() => setOpenAddCategoryModel(false)}
+            title="Add Category"
+          >
+            <AddCategoryForm/>
+          </Modal>
 
           {/* Updating category modal */}
 
