@@ -35,10 +35,34 @@ const Category = () => {
     }
   }
 
+  const handleAddCategory = async (category) => {
+    const {name, type, icon} = category;
+
+    if(!name.trim()){
+      toast.error("Category Name is required");
+      return;
+    }
+
+    try {
+      const response = await axiosConfig.post(API_ENDPOINTS.ADD_CATEGORY, {
+        name,type,icon
+      })
+
+      if(response.status === 200) {
+        toast.success("Category added successfully");
+        setOpenAddCategoryModel(false);
+        fetchCategoryDetails();
+      }
+
+    }catch(error){
+      console.log("Error adding category: ", error);
+      toast.error(error.response?.data?.message || "Failed to add category.");
+    }
+  }
+
   useEffect(() => {
     fetchCategoryDetails();
   }, []);
-
 
   return (
     <div>
@@ -62,7 +86,7 @@ const Category = () => {
             onClose={() => setOpenAddCategoryModel(false)}
             title="Add Category"
           >
-            <AddCategoryForm/>
+            <AddCategoryForm onAddCategory={handleAddCategory}/>
           </Modal>
 
           {/* Updating category modal */}
