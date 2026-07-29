@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react'
-import Dashboard from '../components/Dashboard'
-import useUser from '../hooks/useUser'
-import { Plus } from 'lucide-react';
-import CategoryList from '../components/CategoryList';
-import axiosConfig from '../util/axiosConfig';
-import { API_ENDPOINTS } from '../util/apiEndpoints';
-import toast from 'react-hot-toast';
-import Modal from '../components/Modal';
-import AddCategoryForm from '../components/AddCategoryForm';
+import React, { useEffect, useState } from "react";
+import Dashboard from "../components/Dashboard";
+import useUser from "../hooks/useUser";
+import { Plus } from "lucide-react";
+import CategoryList from "../components/CategoryList";
+import axiosConfig from "../util/axiosConfig";
+import { API_ENDPOINTS } from "../util/apiEndpoints";
+import toast from "react-hot-toast";
+import Modal from "../components/Modal";
+import AddCategoryForm from "../components/AddCategoryForm";
 
 const Category = () => {
   useUser();
@@ -18,47 +18,93 @@ const Category = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const fetchCategoryDetails = async () => {
-    if(loading) return;
+    if (loading) return;
 
     setLoading(true);
 
-    try{
+    try {
       const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_CATEGORIES);
-      if(response.status == 200) {
+      if (response.status == 201) {
         setCategoryData(response.data);
       }
-    }catch(error) {
+    } catch (error) {
       toast.error(error.message);
-
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const handleAddCategory = async (category) => {
-    const {name, type, icon} = category;
+    const { name, type, icon } = category;
 
-    if(!name.trim()){
+    if (!name.trim()) {
       toast.error("Category Name is required");
+      return;
+    }
+
+    //check if the category already exists
+    const isDuplicate = categoryData.some((category) => {
+      return category.name.toLowerCase() === name.trim().toLowerCase();
+    });
+
+    if (isDuplicate) {
+      toast.error("Category name already exists");
       return;
     }
 
     try {
       const response = await axiosConfig.post(API_ENDPOINTS.ADD_CATEGORY, {
-        name,type,icon
-      })
+        name,
+        type,
+        icon,
+      });
 
-      if(response.status === 200) {
+      if (response.status === 200) {
         toast.success("Category added successfully");
         setOpenAddCategoryModel(false);
         fetchCategoryDetails();
       }
-
-    }catch(error){
+    } catch (error) {
       console.log("Error adding category: ", error);
       toast.error(error.response?.data?.message || "Failed to add category.");
     }
-  }
+  };
+
+  const handleEditCategory = (categoryToEdit) => {
+    setSelectedCategory(categoryToEdit);
+    setOpenEditCategoryModal(true);
+  };
+
+  const handleUpdateCategory = async (updatedCategory) => {
+    const { id, name, type, icon } = updatedCategory;
+
+    if (!name.trim()) {
+      toast.error("Category name is required");
+      return;
+    }
+
+    if (!id.trim()) {
+      toast.error("Category ID is missing for update");
+      return;
+    }
+
+    try {
+      await axiosConfig.put(API_ENDPOINTS.UPDATE_CATEGORY(id), {
+        name,
+        type,
+        icon,
+      });
+      setOpenEditCategoryModal(false);
+      setSelectedCategory(null);
+      toast.success("Category updated successfully!");
+      fetchCategoryDetails();
+    } catch (error) {
+      console.log(error);
+      toast.error(
+        error.response?.data?.message || "Failed to update category.",
+      );
+    }
+  };
 
   useEffect(() => {
     fetchCategoryDetails();
@@ -67,34 +113,53 @@ const Category = () => {
   return (
     <div>
       <Dashboard activeMenu="Category">
-        <div className='my-5 mx-auto'>
+        <div className="my-5 mx-auto">
           {/* Add button to add category */}
-          <div className='flex justify-between items-center mb-5'>
-            <h2 className='text-2xl font-semibold'>All Cateogories</h2>
-            <button onClick={() => setOpenAddCategoryModel(true)} className='add-btn flex items-center gap-1'>
+          <div className="flex justify-between items-center mb-5">
+            <h2 className="text-2xl font-semibold">All Cateogories</h2>
+            <button
+              onClick={() => setOpenAddCategoryModel(true)}
+              className="add-btn flex items-center gap-1"
+            >
               <Plus size={15} />
               Add category
             </button>
           </div>
 
           {/* Category list */}
-          <CategoryList categories={categoryData}/>
+          <CategoryList
+            categories={categoryData}
+            onEditCategory={handleEditCategory}
+          />
 
           {/* Adding category modal */}
-          <Modal 
-            isOpen={openAddCategoryModal} 
+          <Modal
+            isOpen={openAddCategoryModal}
             onClose={() => setOpenAddCategoryModel(false)}
             title="Add Category"
           >
-            <AddCategoryForm onAddCategory={handleAddCategory}/>
+            <AddCategoryForm onAddCategory={handleAddCategory} />
           </Modal>
 
           {/* Updating category modal */}
-
+          <Modal
+            isOpen={openEditCategoryModal}
+            onClose={() => {
+              setOpenEditCategoryModal(false);
+              setSelectedCategory(null);
+            }}
+            title="Update Category"
+          >
+            <AddCategoryForm
+              initialCategoryData={selectedCategory}
+              onAddCategory={handleUpdateCategory}
+              isEditing={true}
+            />
+          </Modal>
         </div>
       </Dashboard>
     </div>
-  )
-}
+  );
+};
 
-export default Category
+export default Category;
