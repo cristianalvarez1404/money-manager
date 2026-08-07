@@ -9,6 +9,7 @@ import IncomeList from "../components/IncomeList";
 import { Plus } from "lucide-react";
 import Modal from "../components/Modal";
 import AddIncomeForm from "../components/AddIncomeForm";
+import DeleteAlert from "../components/DeleteAlert";
 
 const Income = () => {
   useUser();
@@ -58,7 +59,60 @@ const Income = () => {
     }
   };
 
-  const handleAddIncome = () => {};
+  //save the income details
+  const handleIncome = async (income) => {
+    const { name, amount, date, icon, categoryId } = income;
+
+    //validation
+    if (!name.trim()) {
+      toast.error("Please enter a name");
+      return;
+    }
+
+    if (!amount || isNaN(amount) || Number(amount) <= 0) {
+      toast.error("Amount should be a valid number greater than 0");
+      return;
+    }
+
+    if (!date) {
+      toast.error("Please select a date");
+      return;
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+    if (date > today) {
+      toast.error("Date cannot be in the future");
+      return;
+    }
+
+    if (!categoryId) {
+      toast.error("Please select a category");
+      return;
+    }
+
+    try {
+      const response = await axiosConfig.post(API_ENDPOINTS.ADD_INCOME, {
+        name,
+        amount: Number(amount),
+        date,
+        icon,
+        categoryId,
+      });
+
+      if (response.status === 201) {
+        setOpenAddIncomeModal(false);
+        toast.success("Income added successfully");
+        fetchIncomeDetails();
+        fetchIncomeCategories();
+      }
+    } catch (error) {
+      console.log("Error adding income", error);
+      toast.error(error.response?.data?.message || "Failed to adding income");
+    }
+  };
+
+  //delete income details
+  const deleteIncome = async (id) => {};
 
   useEffect(() => {
     fetchIncomeDetails();
@@ -80,7 +134,7 @@ const Income = () => {
           </div>
           <IncomeList
             transactions={incomeData}
-            onDelete={(id) => console.log(id)}
+            onDelete={(id) => setOpenDeleteAlert({ show: true, data: id })}
           />
 
           {/* Add income Modal */}
@@ -90,8 +144,20 @@ const Income = () => {
             title="Add income"
           >
             <AddIncomeForm
-              onAddIncome={(income) => handleAddIncome}
+              onAddIncome={(income) => handleAddIncome(income)}
               categories={categories}
+            />
+          </Modal>
+
+          {/* Delete Income Modal */}
+          <Modal
+            isOpen={openDeleteAlert.show}
+            onClose={() => setOpenDeleteAlert({ show: false, data: null })}
+            title="Delete Income"
+          >
+            <DeleteAlert
+              content="Are you sure want to delete this income details?"
+              onDelete={() => deleteIncome(openDeleteAlert.data)}
             />
           </Modal>
         </div>
